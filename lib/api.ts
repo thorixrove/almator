@@ -1,7 +1,8 @@
 import axios, { isAxiosError } from "axios"
 
 import { authClient } from "@/lib/auth-client"
-import type { ApiError } from "@/types/api"
+import type { ApiError, ProjectResponse, ProjectsResponse } from "@/types/api"
+import type { CreateProjectInput } from "@/types/project"
 
 export const api = axios.create({
     baseURL: "/api",

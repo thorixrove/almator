@@ -1,3 +1,3 @@
-// Tabel auth dibuat oleh Better Auth CLI (auth-schema.ts). Tabel aplikasi (project, media, ...)
-// ditambahkan di file terpisah pada langkah berikutnya, lalu di-export dari sini.
+// Pintu masuk semua tabel: auth (dibuat CLI) + tabel aplikasi.
 export * from "./auth-schema"
+export * from "./app-schema"
