@@ -22,7 +22,28 @@ api.interceptors.response.use(
 
 export const queryKeys = {
     session: ["session"] as const,
+    projects: ["projects"] as const,
+    project: (id: string) => ["projects", id] as const
 }
+
+// ── Projects ────────────────────────────────────────────────────────────
+
+export async function getProjectsQueryFn() {
+    const { data } = await api.get<ProjectsResponse>("/projects")
+    return data.projects
+}
+
+export async function getProjectQueryFn(id: string) {
+    const { data } = await api.get<ProjectResponse>(`/projects/${id}`)
+    return data.project
+}
+
+export async function createProjectMutationFn(input: CreateProjectInput) {
+    const { data } = await api.post<ProjectResponse>("/projects", input)
+    return data.project
+}
+
+// ── Auth (client Better Auth) ───────────────────────────────────────────
 
 type BetterAuthResult<T> = { data: T; error: null } | { data: null; error: { message?: string } }
 
