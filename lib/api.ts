@@ -1,9 +1,8 @@
 import axios, { isAxiosError } from "axios"
 
 import { authClient } from "@/lib/auth-client"
-import type { ApiError, ProjectResponse, ProjectsResponse } from "@/types/api"
+import type { ApiError, ApiKeySummary, ProjectResponse, ProjectsResponse } from "@/types/api"
 import type { CreateProjectInput } from "@/types/project"
-
 /*
  * Semua fungsi data sisi-client ada di sini, siap dipakai TanStack Query:
  *   useQuery({ queryKey: queryKeys.projects, queryFn: getProjectsQueryFn })
@@ -32,6 +31,7 @@ export const queryKeys = {
   session: ["session"] as const,
   projects: ["projects"] as const,
   project: (id: string) => ["projects", id] as const,
+  apiKeys: ["api-keys"] as const,
 }
 
 // ── Projects ────────────────────────────────────────────────────────────
@@ -74,4 +74,30 @@ export async function signOutMutationFn() {
 
 export async function getSessionQueryFn() {
   return unwrap(await authClient.getSession(), "Couldn't load your session.")
+}
+
+
+export async function createApiKeyMutationFn({ name, expiresInDays }: { name: string; expiresInDays: number | null }) {
+  const result = await authClient.apiKey.create({ name, expiresIn: expiresInDays ? expiresInDays * 24 * 60 * 60 : null })
+  return unwrap(result as BetterAuthResult<{ key: string; id: string; expiresAt: Date | string | null }>, "Couldn't create the key.")
+}
+
+const iso = (value: Date | string | null) => (value ? new Date(value).toISOString() : null)
+
+export async function listApiKeysQueryFn(): Promise<ApiKeySummary[]> {
+  const data = unwrap(await authClient.apiKey.list(), "Couldn't load your keys.")
+  return (data?.apiKeys ?? [])
+    .map((key) => ({
+      id: key.id,
+      name: key.name,
+      start: key.start,
+      createdAt: iso(key.createdAt)!,
+      lastUsedAt: iso(key.lastRequest),
+      expiresAt: iso(key.expiresAt),
+    }))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+}
+
+export async function revokeApiKeyMutationFn(keyId: string) {
+  return unwrap(await authClient.apiKey.delete({ keyId }), "Couldn't revoke the key.")
 }

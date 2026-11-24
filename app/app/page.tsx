@@ -3,15 +3,17 @@ import type { Metadata } from "next"
 import { Suspense } from "react"
 
 import { Greeting } from "@/components/greeting"
+import { ConnectClaudeCard } from "@/components/home/connect-claude-card"
 import { ProjectList } from "@/components/home/project-list"
+import { QuickLinks } from "@/components/home/quick-links"
 import { AppHeader } from "@/components/nav/app-header"
 import { NewProjectButton } from "@/components/new-project/new-project-button"
 import { requireSession } from "@/lib/session"
 
 export const metadata: Metadata = { title: "Your projects" }
 
-// Placeholder /app (dashboard asli dibuat di langkah berikutnya).
-// Halaman tetap shell statis; sesi dibaca di dalam <Suspense> (aturan cacheComponents).
+// Home. A static shell: the greeting reads the session behind <Suspense>,
+// and the project list loads on the client with TanStack Query.
 export default function HomePage() {
   return (
     <div className="px-4 py-5 sm:px-6">
@@ -36,6 +38,11 @@ export default function HomePage() {
         </div>
 
         <ProjectList />
+
+        <div className="mt-14 grid gap-5 lg:grid-cols-[3fr_2fr]">
+          <ConnectClaudeCard />
+          <QuickLinks />
+        </div>
       </main>
     </div>
   )
